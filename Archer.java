@@ -1,7 +1,6 @@
 import java.awt.Color;
 import java.util.Random;
 
-
 class Archer extends GameCharacter {
     private static final Random RNG = new Random();
     public Archer(String name, int level) {
@@ -12,7 +11,7 @@ class Archer extends GameCharacter {
     @Override public String specialMove() { return getName() + " uses Triple Shot!"; }
     @Override public int attackDamage() {
         int base = 9 + getLevel() * 3;
-        return RNG.nextInt(100) < 25 ? base * 2 : base;   // 25% critical hit
+        return RNG.nextInt(100) < 25 ? base * 2 : base;
     }
     @Override public int specialDamage()  { return (9 + getLevel() * 3) * 3 * 7 / 10; }
     @Override public String getImageFile()   { return "archer.png"; }

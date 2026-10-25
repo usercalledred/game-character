@@ -1,6 +1,5 @@
 import java.awt.Color;
 
-
 abstract class GameCharacter {
     private String name;
     private int level;
@@ -21,10 +20,8 @@ abstract class GameCharacter {
     public abstract Color getColor();
     public abstract String getImageFile();
 
-
     public String afterSpecial() { return ""; }
 
-    
     protected void initHp(int hpValue) { this.maxHp = hpValue; this.hp = hpValue; }
 
     public void takeDamage(int dmg) { hp = Math.max(0, hp - dmg); }

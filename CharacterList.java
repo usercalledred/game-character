@@ -1,7 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-
 class CharacterList {
     private static class Node {
         GameCharacter data;
@@ -37,7 +36,6 @@ class CharacterList {
         return null;
     }
 
-    
     public boolean replace(String oldName, GameCharacter replacement) {
         for (Node cur = head; cur != null; cur = cur.next) {
             if (cur.data.getName().equalsIgnoreCase(oldName)) { cur.data = replacement; return true; }
@@ -45,7 +43,6 @@ class CharacterList {
         return false;
     }
 
- 
     public List<GameCharacter> search(String text) {
         String t = text.trim().toLowerCase();
         List<GameCharacter> out = new ArrayList<>();

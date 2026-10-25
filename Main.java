@@ -44,13 +44,15 @@ public class Main extends JFrame {
         if (IMAGES.containsKey(file)) return IMAGES.get(file);
         BufferedImage img = null;
         List<File> dirs = new ArrayList<>();
-        dirs.add(new File("images"));
-        dirs.add(new File(System.getProperty("user.dir"), "images"));
+        File cwd = new File(System.getProperty("user.dir"));
+        dirs.add(new File("images")); dirs.add(new File("."));
+        dirs.add(new File(cwd, "images")); dirs.add(cwd);
         try {
             File here = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             File base = here.isDirectory() ? here : here.getParentFile();
-            dirs.add(new File(base, "images"));
-            if (base.getParentFile() != null) dirs.add(new File(base.getParentFile(), "images"));
+            for (File b = base; b != null && dirs.size() < 14; b = b.getParentFile()) {
+                dirs.add(new File(b, "images")); dirs.add(b);
+            }
         } catch (Exception ignored) { }
         for (File d : dirs) {
             File f = new File(d, file);
@@ -58,7 +60,14 @@ public class Main extends JFrame {
                 try { img = crop(ImageIO.read(f)); break; } catch (Exception ignored) { }
             }
         }
-        if (img == null) System.err.println("Could not find image: " + file + " (looked in " + dirs + ")");
+        if (img == null) {
+            try {
+                java.io.InputStream in = Main.class.getResourceAsStream("/images/" + file);
+                if (in == null) in = Main.class.getResourceAsStream("/" + file);
+                if (in != null) img = crop(ImageIO.read(in));
+            } catch (Exception ignored) { }
+        }
+        if (img == null) System.err.println("Could not find image: " + file + "\nWorking folder: " + cwd.getAbsolutePath() + "\nLooked in: " + dirs);
         IMAGES.put(file, img);
         return img;
     }
@@ -163,8 +172,8 @@ public class Main extends JFrame {
 
         seedSamples();
         refreshTable(null);
-        setSize(1100, 860);
-        setMinimumSize(new Dimension(980, 700));
+        setSize(1120, 940);
+        setMinimumSize(new Dimension(1000, 760));
         setLocationRelativeTo(null);
     }
 
@@ -172,14 +181,25 @@ public class Main extends JFrame {
         JComponent t = new JComponent() {
             @Override protected void paintComponent(Graphics g0) {
                 Graphics2D g = (Graphics2D) g0;
-                g.setFont(mc(34));
+                g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);
+                Font f = mc(44).deriveFont(Font.BOLD);
+                g.setFont(f);
                 String s = "GAME CHARACTER MANAGER";
-                int x = (getWidth() - g.getFontMetrics().stringWidth(s)) / 2, y = 34;
-                g.setColor(new Color(60, 40, 0)); g.drawString(s, x + 4, y + 4);
-                g.setColor(GOLD); g.drawString(s, x, y);
+                FontMetrics fm = g.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(s)) / 2, y = (getHeight() + fm.getAscent()) / 2 - 6;
+                for (int d = 8; d >= 1; d--) {
+                    g.setColor(d > 5 ? new Color(25, 25, 25) : new Color(72, 72, 72));
+                    g.drawString(s, x + d, y + d);
+                }
+                g.setColor(Color.BLACK);
+                for (int dx = -3; dx <= 3; dx += 3)
+                    for (int dy = -3; dy <= 3; dy += 3) if (dx != 0 || dy != 0) g.drawString(s, x + dx, y + dy);
+                g.setPaint(new GradientPaint(0, y - fm.getAscent(), new Color(228, 228, 228),
+                        0, y, new Color(135, 135, 135)));
+                g.drawString(s, x, y);
             }
         };
-        t.setPreferredSize(new Dimension(0, 48));
+        t.setPreferredSize(new Dimension(0, 74));
         return t;
     }
 
@@ -238,7 +258,6 @@ public class Main extends JFrame {
         p.add(grid);
         p.add(Box.createVerticalStrut(6));
 
-        p.add(label("SEARCH (name / class)")); p.add(searchField);
         searchField.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { refreshTable(null); }
             public void removeUpdate(DocumentEvent e) { refreshTable(null); }
@@ -296,6 +315,15 @@ public class Main extends JFrame {
             avatar.setCharacter(c);
         });
         GlassPanel p = new GlassPanel(new BorderLayout());
+        JPanel searchRow = new JPanel(new BorderLayout(10, 0));
+        searchRow.setOpaque(false);
+        searchRow.setBorder(new EmptyBorder(0, 0, 10, 0));
+        JLabel searchLabel = new JLabel("SEARCH");
+        searchLabel.setForeground(GOLD);
+        searchLabel.setFont(mc(14));
+        searchRow.add(searchLabel, BorderLayout.WEST);
+        searchRow.add(searchField, BorderLayout.CENTER);
+        p.add(searchRow, BorderLayout.NORTH);
         JScrollPane sp = new JScrollPane(table);
         sp.getViewport().setBackground(new Color(45, 45, 45));
         sp.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
@@ -305,9 +333,10 @@ public class Main extends JFrame {
 
     private JComponent buildBattle() {
         GlassPanel p = new GlassPanel(new BorderLayout(12, 0));
-        log = new JTextArea(5, 40);
+        log = new JTextArea(11, 40);
         log.setEditable(false); log.setBackground(new Color(10, 10, 10)); log.setForeground(GREEN);
-        log.setFont(mc(13)); log.setMargin(new Insets(6, 8, 6, 8));
+        log.setFont(mc(16)); log.setMargin(new Insets(8, 10, 8, 10));
+        log.setLineWrap(true); log.setWrapStyleWord(true);
         JScrollPane sp = new JScrollPane(log);
         sp.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 
@@ -324,7 +353,7 @@ public class Main extends JFrame {
             refreshTable(selectedName());
         });
         btns.add(atk); btns.add(spc); btns.add(heal);
-        btns.setPreferredSize(new Dimension(190, 0));
+        btns.setPreferredSize(new Dimension(230, 0));
         p.add(sp, BorderLayout.CENTER); p.add(btns, BorderLayout.EAST);
         return p;
     }
@@ -437,9 +466,9 @@ public class Main extends JFrame {
     private void error(String s) { JOptionPane.showMessageDialog(this, s, "Oops!", JOptionPane.WARNING_MESSAGE); }
 
     private void seedSamples() {
-        roster.add(new Warrior("Brader", 5));
-        roster.add(new Mage("GabMids", 5));
-        roster.add(new Archer("Sylva", 4));
+        roster.add(new Warrior("Martin", 5));
+        roster.add(new Mage("Ren", 5));
+        roster.add(new Archer("Lui", 4));
     }
 
     public static void main(String[] args) {
@@ -537,4 +566,4 @@ public class Main extends JFrame {
             g.dispose();
         }
     }
-}
+}   
