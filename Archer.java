@@ -7,8 +7,8 @@ class Archer extends GameCharacter {
         super(name, level);
         initHp(90 + level * 7);
     }
-    @Override public String attack()      { return getName() + " fires a swift arrow!"; }
-    @Override public String specialMove() { return getName() + " uses Triple Shot!"; }
+    @Override public String attack()      { return getName() + " gi sight, gi pangita, bang IGO! "; }
+    @Override public String specialMove() { return getName() + " pitipiwiwiwiwiw arrow "; }
     @Override public int attackDamage() {
         int base = 9 + getLevel() * 3;
         return RNG.nextInt(100) < 25 ? base * 2 : base;
@@ -16,6 +16,6 @@ class Archer extends GameCharacter {
     @Override public int specialDamage()  { return (9 + getLevel() * 3) * 3 * 7 / 10; }
     @Override public String getImageFile()   { return "archer.png"; }
     @Override public String getType()        { return "Archer"; }
-    @Override public String getSpecialName() { return "Triple Shot"; }
+    @Override public String getSpecialName() { return "pitipiwiwiwiwiw arrow"; }
     @Override public Color getColor()        { return new Color(70, 190, 110); }
 }
