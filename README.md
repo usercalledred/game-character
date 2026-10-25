@@ -8,7 +8,7 @@ An upgraded version of the **java-game-character** abstraction lesson. It is a d
 |---|---|
 | **Abstraction** | `GameCharacter` is an abstract class with abstract methods `attack()`, `specialMove()`, `attackDamage()`, `specialDamage()`, `getType()`, `getImageFile()`, `getColor()`, plus shared concrete methods (`takeDamage`, `heal`, `showName`, ...). |
 | **Abstract Data Type** | `CharacterList` is a hand-written **singly linked list**. A `Deque` is used as a **stack** for *Undo Remove*. |
-| **GUI** | Java Swing (`Main.java`) with a custom pixel theme. |
+| **GUI** | Java Swing (`GameWindow.java`) with a custom pixel theme. |
 | **User Input** | Text fields, combo box, spinner, search box, buttons, confirmation dialogs. |
 
 ## Character Types
@@ -61,7 +61,8 @@ java Main
 GameCharacter.java   abstract base class
 Warrior.java  Mage.java  Archer.java   concrete types
 CharacterList.java   linked-list ADT
-Main.java            Swing GUI (pixel theme)
+Main.java            tiny entry point (uses GameCharacter references)
+GameWindow.java      Swing GUI (pixel theme)
 images/              archer.png, warrior.png, mage.png
 fonts/               put minecraft.ttf here (optional)
 README.md
